@@ -1,0 +1,135 @@
+<div class="row mt-5 justify-content-end">
+  <div class="col-6 col-md-4">
+    <form name="frm">
+      <div class="input-group">
+        <input type="text" name="query" class="form-control" value="" />
+        <button class="btn btn-danger">검색</button>
+      </div>
+    </form>
+  </div>
+</div>
+<hr />
+
+<!-- 카카오 도서 검색 결과를 출력할 공간 마련 -->
+<div class="row" id="list_book"></div>
+<!-- ===================================== -->
+
+<!-- Handlebars Helper 추가 -->
+<script>
+  //가격에 3자리에 콤파 처리 정규표현식
+  Handlebars.registerHelper("format", function (price) {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원";
+  });
+  //썸네일이 없을 때 더미 이미지로 대체
+  Handlebars.registerHelper("image", function (thum) {
+    if (thum) return thum;
+    else return "https://via.placeholder.com/120x174";
+  });
+</script>
+<!-- Handlebars Helper 추가 -->
+
+<!-- list_book 안에 들어갈 템플릿 작성하기  -->
+<script id="temp_book" type="text/x-handlebars-template">
+  {{#each documents}}
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card my-2">
+        <div class="card-body">
+          <img
+            src="{{image thumbnail}}"
+            index="{{@index}}"
+            alt="도서이미지"
+            style="cursor: pointer; width: 80%;"
+          />
+          <div class="mt-2">
+            {{title}}
+          </div>
+        </div>
+        <div class="card-footer" style="font-size: 0.6rem;">
+          <div class="text-center">
+            {{format price}}
+          </div>
+          <span
+            class="cart ms-3"
+            style="cursor: pointer; color: green;"
+          >CART</span>
+        </div>
+      </div>
+    </div>
+  {{/each}}
+</script>
+
+<div class="text-center mt-2">
+  <button class="btn btn-primary btn-sm px-5" id="prev">이전</button>
+  <span id="page" class="px-3">1/10</span>
+  <button class="btn btn-primary btn-sm px-5" id="next">다음</button>
+</div>
+<script>
+  //사용자가 입력한 키워드 가져오기
+  let query = $(frm.query).val();
+  let page = 1;
+
+  //다음 버튼을 눌렀을 때 next - page +1
+  $("#next").on("click", () => {
+    page++;
+    bookList();
+  });
+
+  //이전 버튼을 눌렀을 때 prev - page -1
+  $("#prev").on("click", () => {
+    page--;
+    bookList();
+  });
+
+  //도서 이미지를 클릭 했을 때 도서 식별자 가져오기
+  $("#list_book").on("click", ".card img", () => {
+    let index = $(this).attr("index");
+    console.log(`사용자가 선택한 이미지 index값은 ${index}`);
+  });
+
+  const bookList = () => {
+    console.log(`page=${page}, query=${query}`);
+    $.ajax({
+      type: "get",
+      url: "https://dapi.kakao.com/v3/search/book?target=title",
+      headers: { Authorization: "KakaoAK 818b11bd2a07b66b6f5537b683402953" },
+      data: { query, page, size: 20 },
+      dataType: "json",
+      success: function (data) {
+        console.log(data); //[object Object]->JSON.stringify()
+
+        //핸들바스 템플릿을 가져온다.
+        const temp = Handlebars.compile($("#temp_book").html());
+        //템플릿 결과를
+        $("#list_book").html(temp(data));
+        //핸들바스 템플릿에 바인딩될 데이터 셋 입니다. - Array
+        //마지막 페이지?
+        let is_end = data.meta.is_end;
+        console.log(is_end);
+        let total = data.meta.total_count;
+        console.log(total);
+
+        // 총페이지수 - total/perpage
+        let last = Math.ceil(total/20);
+        $("#page").text(`${page}/${last}`);
+        if(page===1) $("#prev").attr("disabled", true);
+        else $("#prev").attr("disabled", false);
+        
+        if(is_end) $("#next").attr("disabled", true);
+        else $("#next").attr("disabled", false);
+      },
+
+      error: function (error) {
+        console.log(error); //디버깅시 힌트를 얻기 위해서
+      },
+    }); //end of 비동기통신 처리
+  }; //end of bookList()
+  bookList();
+
+  //submit 새로고침 방어하기
+  $(frm).on("submit", (e) => {
+    e.preventDefault();
+    query = $(frm.query).val(); //jquery가 제공하는 함수
+    page = 1;
+    bookList();
+  });
+</script>

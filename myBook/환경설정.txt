@@ -1,0 +1,26 @@
+전제 조건 - NodeJS 설치 되어있다는 가정에서
+
+노드환경 구성하기 
+:express는 웹서비스를 가능하게 하는 웹 프레임워크이다
+:왜? 웹 서비스가 가능? - Restful API지원
+:GET, POST, PUT, DELETE
+
+express 프로젝트를 자동으로 생성해주는 express-generator 모듈 설치 
+express 노드 기반에서 웹 어플리케이션 개발을 지원하는 프레임워크이다.
+//npm 명령으로 외부 라이브러리를 설치 하면 로컬(cdn-인터넷)에 node_modules폴더 생성
+npm i express-generator -g 
+express -e myBook
+//-e 옵션은 jsp에서 제공하는 스크립트와 제일 비슷 - ejs(Embedded JavaScript templating)
+//-include
+
+express 노드 기반에서 웹 어플리케이션 개발을 지원하는 프레임 워크
+
+명령어
+1. npm install [모듈명] -g 
+ : g옵션은 모듈을 전역적으로 설치할 때 사용함, 특정프로젝트가 아닌 전체 프로젝트에서 공통으로 사용
+2. npm install [모듈명] --save
+ : 현재 작업중인 프로젝트에 모듈(module)을 설치할 때 사용
+(--)욥션으로 현재 프로젝트의 package.json에 모듈이름과 버전을 추가함
+
+npm install 엔터하면 package.json에 있는 의존선관계에 있는 외부 라이브러리 재설치 
+

@@ -1,0 +1,17 @@
+*{
+  box-sizing: border-box;
+}
+
+a{
+  color: blue;
+}
+
+.navbar-brand{
+  color: ghostwhite;
+}
+
+.nav-link{
+  color: ghostwhite;
+}
+
+
